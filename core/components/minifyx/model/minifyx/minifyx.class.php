@@ -160,8 +160,12 @@ class MinifyX {
 	 * @return string
 	 */
 	public function Munee($files, $options = array()) {
-		define('WEBROOT', MODX_BASE_PATH);
-		define('MUNEE_CACHE', MODX_CORE_PATH . 'cache/default/munee/');
+		if (!defined('WEBROOT')) {
+			define('WEBROOT', MODX_BASE_PATH);
+		}
+		if (!defined('MUNEE_CACHE')) {
+			define('MUNEE_CACHE', MODX_CORE_PATH . 'cache/default/munee/');
+		}
 
 		require_once $this->config['corePath'] . 'munee/munee.phar';
 
