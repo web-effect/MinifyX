@@ -163,7 +163,7 @@ class MinifyX {
 		define('WEBROOT', MODX_BASE_PATH);
 		define('MUNEE_CACHE', MODX_CORE_PATH . 'cache/default/munee/');
 
-		require $this->config['corePath'] . 'munee/munee.phar';
+		require_once $this->config['corePath'] . 'munee/munee.phar';
 
 		try {
 			$Request = new \Munee\Request($options);
