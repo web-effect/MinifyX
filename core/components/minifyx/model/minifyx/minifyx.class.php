@@ -27,6 +27,9 @@ class MinifyX {
 			'minifyJs' => true,
 			'minifyCss' => true,
 
+			'registerCss' => 'default',
+			'registerJs' => 'default',
+
 			'forceUpdate' => false
 
 		),$config);
@@ -51,8 +54,9 @@ class MinifyX {
 			return;
 		}
 
-		$time = time();
 		$cacheFolderUrl = DIRECTORY_SEPARATOR . str_replace(MODX_BASE_PATH, '', $this->config['cacheFolder']);
+		$time = time();
+
 		if ($js = $this->prepareFiles($this->config['jsSources'], 'js')) {
 			$js = $this->Munee($js, array(
 				'minify' => $this->config['minifyJs'] ? 'true' : 'false',
@@ -68,12 +72,22 @@ class MinifyX {
 			}
 
 			if (!empty($file)) {
-				$this->modx->regClientScript($cacheFolderUrl . $file);
+				if ($this->config['registerJs'] == 'placeholder' && !empty($this->config['jsPlaceholder'])) {
+					$this->modx->setPlaceholder(
+						$this->config['jsPlaceholder'],
+						'<script type="text/javascript" src="' . $cacheFolderUrl . $file . '"></script>'
+					);
+				}
+				elseif ($this->config['registerJs'] == 'startup') {
+					$this->modx->regClientStartupScript($cacheFolderUrl . $file);
+				}
+				else {
+					$this->modx->regClientScript($cacheFolderUrl . $file);
+				}
 			}
 		}
 
 		if ($css = $this->prepareFiles($this->config['cssSources'], 'css')) {
-			var_dump($css);
 			$css = $this->Munee($css, array(
 				'minify' => $this->config['minifyCss'] ? 'true' : 'false',
 			));
@@ -88,7 +102,15 @@ class MinifyX {
 			}
 
 			if (!empty($file)) {
-				$this->modx->regClientCSS($cacheFolderUrl . $file);
+				if ($this->config['registerCss'] == 'placeholder' && !empty($this->config['cssPlaceholder'])) {
+					$this->modx->setPlaceholder(
+						$this->config['cssPlaceholder'],
+						'<link rel="stylesheet" href="' . $cacheFolderUrl .  $file . '" type="text/css" />'
+					);
+				}
+				else {
+					$this->modx->regClientCSS($cacheFolderUrl . $file);
+				}
 			}
 		}
 

@@ -4,6 +4,7 @@ Changelog for MinifyX
 ==============
 - Integrated Munee library from http://mun.ee
 - Auto creation of cache dir.
+- More options to register files on frontend.
 
 1.1.3 (07.01.2013)
 ==============

@@ -5,9 +5,3 @@ if (!$modx->getService('minifyx','MinifyX', MODX_CORE_PATH.'components/minifyx/m
 
 $MinifyX = new MinifyX($modx, $scriptProperties);
 $MinifyX->minify();
-
-// Set old placeholders so MODX can quick replace them
-$modx->setPlaceholders(array(
-	'MinifyX.javascript' => '',
-	'MinifyX.css' => '',
-));
