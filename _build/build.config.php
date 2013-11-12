@@ -2,8 +2,8 @@
 /* define package */
 define('PKG_NAME','MinifyX');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-define('PKG_VERSION','1.1.3');
-define('PKG_RELEASE','pl');
+define('PKG_VERSION','1.2.0');
+define('PKG_RELEASE','beta');
 define('PKG_AUTO_INSTALL', true);
 
 /* define paths */

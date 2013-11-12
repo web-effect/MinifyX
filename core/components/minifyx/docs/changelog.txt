@@ -1,6 +1,6 @@
 Changelog for MinifyX
 
-1.2.0 (**.11.2013)
+1.2.0 (12.11.2013)
 ==============
 - Integrated Munee library from http://mun.ee
 - Auto creation of cache dir.
