@@ -1,6 +1,11 @@
 Changelog for MinifyX
 
-1.2.0 (12.11.2013)
+1.2.0-rc (20.11.2013)
+==============
+- Updated leafo/lessphp to v0.4.0
+- Updated leafo/scssphp to v0.0.8
+
+1.2.0-beta (12.11.2013)
 ==============
 - Integrated Munee library from http://mun.ee
 - Auto creation of cache dir.
