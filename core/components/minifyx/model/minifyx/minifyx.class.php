@@ -195,7 +195,11 @@ class MinifyX {
 				: '';
 		}
 		catch (\Munee\ErrorException $e) {
-			$this->modx->log(modX::LOG_LEVEL_ERROR, '[MinifyX] ' . $e->getMessage());
+			$error = $e->getMessage();
+			if ($prev = $e->getPrevious()) {
+				$error .= ': '. $e->getPrevious()->getMessage();
+			}
+			$this->modx->log(modX::LOG_LEVEL_ERROR, '[MinifyX] ' . $error);
 			return '';
 		}
 	}

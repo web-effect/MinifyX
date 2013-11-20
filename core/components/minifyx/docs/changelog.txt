@@ -4,6 +4,7 @@ Changelog for MinifyX
 ==============
 - Updated leafo/lessphp to v0.4.0
 - Updated leafo/scssphp to v0.0.8
+- Improved error logging
 
 1.2.0-beta (12.11.2013)
 ==============
