@@ -1,5 +1,9 @@
 Changelog for MinifyX
 
+1.2.0-pl (23.11.2013)
+==============
+- Fixed clean of parameter &cacheFolder
+
 1.2.0-rc (20.11.2013)
 ==============
 - Updated leafo/lessphp to v0.4.0

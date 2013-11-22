@@ -211,7 +211,7 @@ class MinifyX {
 	 * @return bool|string
 	 */
 	public function cacheFolder() {
-		$full_path = ltrim(str_replace(MODX_BASE_PATH, '', $this->config['cacheFolder']), DIRECTORY_SEPARATOR);
+		$full_path = trim(str_replace(MODX_BASE_PATH, '', trim($this->config['cacheFolder'])), DIRECTORY_SEPARATOR);
 
 		if (!file_exists(MODX_BASE_PATH . $full_path)) {
 			$tmp = explode(DIRECTORY_SEPARATOR, $full_path);
