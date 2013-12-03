@@ -54,7 +54,7 @@ class MinifyX {
 			return;
 		}
 
-		$cacheFolderUrl = DIRECTORY_SEPARATOR . str_replace(MODX_BASE_PATH, '', $this->config['cacheFolder']);
+		$cacheFolderUrl = '/' . str_replace(MODX_BASE_PATH, '', $this->config['cacheFolder']);
 		$time = time();
 
 		if ($js = $this->prepareFiles($this->config['jsSources'], 'js')) {
@@ -211,14 +211,14 @@ class MinifyX {
 	 * @return bool|string
 	 */
 	public function cacheFolder() {
-		$full_path = trim(str_replace(MODX_BASE_PATH, '', trim($this->config['cacheFolder'])), DIRECTORY_SEPARATOR);
+		$full_path = trim(str_replace(MODX_BASE_PATH, '', trim($this->config['cacheFolder'])), '/');
 
 		if (!file_exists(MODX_BASE_PATH . $full_path)) {
-			$tmp = explode(DIRECTORY_SEPARATOR, $full_path);
+			$tmp = explode('/', $full_path);
 			$path = MODX_BASE_PATH;
 			foreach ($tmp as $v) {
 				if (!empty($v)) {
-					$path .= $v . DIRECTORY_SEPARATOR;
+					$path .= $v . '/';
 					if (!file_exists($path)) {
 						mkdir($path);
 					}
@@ -226,8 +226,8 @@ class MinifyX {
 			}
 		}
 
-		if (substr($full_path, -1) !== DIRECTORY_SEPARATOR) {
-			$full_path .= DIRECTORY_SEPARATOR;
+		if (substr($full_path, -1) !== '/') {
+			$full_path .= '/';
 		}
 
 		// Could not create cache directory

@@ -1,5 +1,9 @@
 Changelog for MinifyX
 
+1.2.1-pl (*.12.2013)
+==============
+- [#1] Replaced constant DIRECTORY_SEPARATOR to '/'.
+
 1.2.0-pl (23.11.2013)
 ==============
 - Fixed clean of parameter &cacheFolder
