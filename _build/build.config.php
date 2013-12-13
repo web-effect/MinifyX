@@ -2,8 +2,8 @@
 /* define package */
 define('PKG_NAME','MinifyX');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-define('PKG_VERSION','1.2.1');
-define('PKG_RELEASE','pl');
+define('PKG_VERSION','1.2.2');
+define('PKG_RELEASE','pl1');
 define('PKG_AUTO_INSTALL', true);
 
 /* define paths */
@@ -46,4 +46,6 @@ define('BUILD_SNIPPET_UPDATE', true);
 define('BUILD_SNIPPET_STATIC', false);
 //define('BUILD_PLUGIN_STATIC', false);
 
-$BUILD_RESOLVERS = array();
+$BUILD_RESOLVERS = array(
+	'files'
+);

@@ -167,7 +167,7 @@ class MinifyX {
 			define('MUNEE_CACHE', MODX_CORE_PATH . 'cache/default/munee/');
 		}
 
-		require_once $this->config['corePath'] . 'munee/munee.phar';
+		require_once $this->config['corePath'] . 'munee/autoload.php';
 
 		try {
 			$Request = new \Munee\Request($options);
