@@ -54,7 +54,7 @@ class MinifyX {
 			return;
 		}
 
-		$cacheFolderUrl = '/' . str_replace(MODX_BASE_PATH, '', $this->config['cacheFolder']);
+		$cacheFolderUrl = MODX_BASE_URL . str_replace(MODX_BASE_PATH, '', $this->config['cacheFolder']);
 		$time = time();
 
 		if ($js = $this->prepareFiles($this->config['jsSources'], 'js')) {
