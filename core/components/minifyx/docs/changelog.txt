@@ -1,8 +1,9 @@
 Changelog for MinifyX
 
-1.2.2-pl1 (10.12.2013)
+1.2.2-pl2 (15.12.2013)
 ==============
 - Removed phar file.
+- Fixed url of cache dir in subfolder installations.
 
 1.2.1-pl (03.12.2013)
 ==============
