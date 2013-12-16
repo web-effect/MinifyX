@@ -1,9 +1,10 @@
 Changelog for MinifyX
 
-1.2.2-pl2 (15.12.2013)
+1.2.2-pl3 (15.12.2013)
 ==============
 - Removed phar file.
 - Fixed url of cache dir in subfolder installations.
+- Ability of commenting files by prefixing them by the dash.
 
 1.2.1-pl (03.12.2013)
 ==============

@@ -128,7 +128,6 @@ class MinifyX {
 	 * Prepare string or array of files fo send in Munee
 	 *
 	 * @param array|string $files
-	 * @param string $type Type of files
 	 *
 	 * @return string
 	 */
@@ -140,7 +139,7 @@ class MinifyX {
 
 		if (is_array($files)) {
 			foreach ($files as $file) {
-				if (!empty($file)) {
+				if (!empty($file) && $file[0] !== '-') {
 					$output[] = $file;
 				}
 			}
