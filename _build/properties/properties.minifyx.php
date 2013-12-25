@@ -3,44 +3,44 @@ $properties = array();
 
 $tmp = array(
 	'jsSources' => array(
-		'type' => 'textfield',
+		'xtype' => 'textfield',
 		'value' => '',
 	),
 	'cssSources' => array(
-		'type' => 'textfield',
+		'xtype' => 'textfield',
 		'value' => '',
 	),
 
 	'minifyJs' => array(
-		'type' => 'combo-boolean',
+		'xtype' => 'combo-boolean',
 		'value' => false
 	),
 	'minifyCss' => array(
-		'type' => 'combo-boolean',
+		'xtype' => 'combo-boolean',
 		'value' => false
 	),
 
 
 	'jsFilename' => array(
-		'type' => 'textfield',
+		'xtype' => 'textfield',
 		'value' => 'scripts',
 	),
 	'cssFilename' => array(
-		'type' => 'textfield',
+		'xtype' => 'textfield',
 		'value' => 'styles',
 	),
 
 	'cacheFolder' => array(
-		'type' => 'textfield',
+		'xtype' => 'textfield',
 		'value' => '/assets/components/minifyx/cache/',
 	),
 	'forceUpdate' => array(
-		'type' => 'combo-boolean',
+		'xtype' => 'combo-boolean',
 		'value' => false,
 	),
 
 	'registerJs' => array(
-		'type' => 'list',
+		'xtype' => 'list',
 		'value' => 'placeholder',
 		'options' => array(
 			array('name' => 'Placeholder', 'value' => 'placeholder'),
@@ -49,11 +49,11 @@ $tmp = array(
 		)
 	),
 	'jsPlaceholder' => array(
-		'type' => 'textfield',
+		'xtype' => 'textfield',
 		'value' => 'MinifyX.javascript',
 	),
 	'registerCss' => array(
-		'type' => 'list',
+		'xtype' => 'list',
 		'value' => 'placeholder',
 		'options' => array(
 			array('name' => 'Placeholder', 'value' => 'placeholder'),
@@ -61,7 +61,7 @@ $tmp = array(
 		)
 	),
 	'cssPlaceholder' => array(
-		'type' => 'textfield',
+		'xtype' => 'textfield',
 		'value' => 'MinifyX.css',
 	),
 

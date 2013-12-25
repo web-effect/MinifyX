@@ -14,4 +14,4 @@ $_lang['minifyx_prop_jsPlaceholder'] = 'Имя плейсхолдера javascri
 $_lang['minifyx_prop_cssPlaceholder'] = 'Имя плейсхолдера css. Используется,если &registerCss=`placeholder`';
 
 $_lang['minifyx_prop_forceUpdate'] = 'Отключить проверку изменения файлов и генерировать новые скрипты и стили каждый раз.';
-$_lang['minifyx_prop_cacheFolder'] = 'Директорию для хранения готовых файлов.';
+$_lang['minifyx_prop_cacheFolder'] = 'Директория для хранения готовых файлов.';
