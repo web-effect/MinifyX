@@ -3,7 +3,6 @@
 class MinifyX {
 	/** @var modX $modx */
 	public $modx = null;
-	protected $current = array('js' => array(), 'css' => array());
 
 
 	function __construct(modX &$modx,array $config = array()) {
@@ -24,14 +23,14 @@ class MinifyX {
 			'cssFilename' => 'styles',
 			'jsFilename' => 'scripts',
 
-			'minifyJs' => true,
-			'minifyCss' => true,
+			'minifyJs' => false,
+			'minifyCss' => false,
 
 			'registerCss' => 'default',
 			'registerJs' => 'default',
 
-			'forceUpdate' => false
-
+			'forceUpdate' => false,
+			'munee_cache' => MODX_CORE_PATH . 'cache/default/munee/',
 		),$config);
 
 		$this->config['jsExt'] = $this->config['minifyJs'] ? '.min.js' : '.js';
@@ -44,103 +43,41 @@ class MinifyX {
 
 
 	/**
-	 * Does the actual minifying, combining files and setting placeholders
-	 *
-	 * @return void
-	 */
-	public function minify() {
-		if (!$this->cacheFolder()) {
-			$this->modx->log(modX::LOG_LEVEL_ERROR, '[MinifyX] Could not create cache dir "'.$this->config['cacheFolder'].'"');
-			return;
-		}
-
-		$cacheFolderUrl = MODX_BASE_URL . str_replace(MODX_BASE_PATH, '', $this->config['cacheFolder']);
-		$time = time();
-
-		if ($js = $this->prepareFiles($this->config['jsSources'], 'js')) {
-			$js = $this->Munee($js, array(
-				'minify' => $this->config['minifyJs'] ? 'true' : 'false',
-			));
-
-			if (!empty($js)) {
-				$file = $this->config['jsFilename'] . '_' . $time . $this->config['jsExt'];
-				file_put_contents($this->config['cacheFolder'] . $file, $js);
-			}
-			elseif (count($this->current['js'])) {
-				$tmp = array_pop($this->current['js']);
-				$file = $tmp['file'];
-			}
-
-			if (!empty($file)) {
-				if ($this->config['registerJs'] == 'placeholder' && !empty($this->config['jsPlaceholder'])) {
-					$this->modx->setPlaceholder(
-						$this->config['jsPlaceholder'],
-						'<script type="text/javascript" src="' . $cacheFolderUrl . $file . '"></script>'
-					);
-				}
-				elseif ($this->config['registerJs'] == 'startup') {
-					$this->modx->regClientStartupScript($cacheFolderUrl . $file);
-				}
-				else {
-					$this->modx->regClientScript($cacheFolderUrl . $file);
-				}
-			}
-		}
-
-		if ($css = $this->prepareFiles($this->config['cssSources'], 'css')) {
-			$css = $this->Munee($css, array(
-				'minify' => $this->config['minifyCss'] ? 'true' : 'false',
-			));
-
-			if (!empty($css)) {
-				$file = $this->config['cssFilename'] . '_' . $time . $this->config['cssExt'];
-				file_put_contents($this->config['cacheFolder'] . $file, $css);
-			}
-			elseif (count($this->current['css'])) {
-				$tmp = array_pop($this->current['css']);
-				$file = $tmp['file'];
-			}
-
-			if (!empty($file)) {
-				if ($this->config['registerCss'] == 'placeholder' && !empty($this->config['cssPlaceholder'])) {
-					$this->modx->setPlaceholder(
-						$this->config['cssPlaceholder'],
-						'<link rel="stylesheet" href="' . $cacheFolderUrl .  $file . '" type="text/css" />'
-					);
-				}
-				else {
-					$this->modx->regClientCSS($cacheFolderUrl . $file);
-				}
-			}
-		}
-
-		foreach ($this->current as $tmp) {
-			foreach ($tmp as $tmp2) {
-				unlink($this->config['cacheFolder'] . $tmp2['file']);
-			}
-		}
-
-		return;
-	}
-
-
-	/**
 	 * Prepare string or array of files fo send in Munee
 	 *
 	 * @param array|string $files
 	 *
 	 * @return string
 	 */
-	protected function prepareFiles($files) {
-		$output = array();
+	public function prepareFiles($files) {
 		if (is_string($files)) {
 			$files = array_map('trim', explode(',', $files));
 		}
 
-		if (is_array($files)) {
-			foreach ($files as $file) {
-				if (!empty($file) && $file[0] !== '-') {
-					$output[] = $file;
+		if (!is_array($files)) {return '';}
+
+		$output = array();
+		foreach ($files as $file) {
+			if (!empty($file) && $file[0] !== '-') {
+				$file = str_replace(MODX_BASE_PATH, '', $file);
+
+				if ($file[0] != '/') {
+					$file = '/' . $file;
+				}
+
+				if ($tmp = parse_url($file)) {
+					// Adding file
+					$output[] = $tmp['path'];
+
+					// Parse file properties if set
+					if (!empty($tmp['query'])) {
+						$tmp2 = explode('&', $tmp['query']);
+						foreach ($tmp2 as $v) {
+							if ($tmp3 = explode('=', $v)) {
+								$_GET[$tmp3[0]] = @$tmp3[1];
+							}
+						}
+					}
 				}
 			}
 		}
@@ -154,16 +91,17 @@ class MinifyX {
 	 * http://mun.ee
 	 *
 	 * @param string $files
-	 * @param array $options
+	 * @param array $options Array with options for Munee class
+	 * @param array $cached Array with cached files for matching against last modified time
 	 *
 	 * @return string
 	 */
-	public function Munee($files, $options = array()) {
+	public function Munee($files, $options = array(), $cached = array()) {
 		if (!defined('WEBROOT')) {
 			define('WEBROOT', MODX_BASE_PATH);
 		}
 		if (!defined('MUNEE_CACHE')) {
-			define('MUNEE_CACHE', MODX_CORE_PATH . 'cache/default/munee/');
+			define('MUNEE_CACHE', $this->getTmpDir());
 		}
 
 		require_once $this->config['corePath'] . 'munee/autoload.php';
@@ -181,12 +119,13 @@ class MinifyX {
 			$AssetType->init();
 
 			$modified = true;
-			if (!empty($this->current[$Request->ext])) {
+			if (!empty($cached)) {
 				$cache_time = $AssetType->getLastModifiedDate();
-				$tmp = end($this->current[$Request->ext]);
-				$current_time = $tmp['time'];
-				if ($cache_time <= $current_time) {
-					$modified = false;
+				$tmp = end($cached);
+				if (preg_match('/_(\d{10})\./', $tmp, $matched)) {
+					if ($cache_time <= $matched[1]) {
+						$modified = false;
+					}
 				}
 			}
 			return $modified || $this->config['forceUpdate']
@@ -205,62 +144,134 @@ class MinifyX {
 
 
 	/**
-	 * Checks and creates cache dir
+	 * Checks and creates cache dir for storing prepared scripts and styles
 	 *
 	 * @return bool|string
 	 */
-	public function cacheFolder() {
-		$full_path = trim(str_replace(MODX_BASE_PATH, '', trim($this->config['cacheFolder'])), '/');
+	public function prepareCacheFolder() {
+		$path = trim(str_replace(MODX_BASE_PATH, '', trim($this->config['cacheFolder'])), '/');
 
-		if (!file_exists(MODX_BASE_PATH . $full_path)) {
-			$tmp = explode('/', $full_path);
-			$path = MODX_BASE_PATH;
-			foreach ($tmp as $v) {
-				if (!empty($v)) {
-					$path .= $v . '/';
-					if (!file_exists($path)) {
-						mkdir($path);
+		if (!file_exists(MODX_BASE_PATH . $path)) {
+			$this->makeDir($path);
+		}
+
+		if (substr($path, -1) !== '/') {
+			$path .= '/';
+		}
+
+		$this->config['cacheFolder'] = MODX_BASE_PATH . $path;
+		return file_exists($this->config['cacheFolder']);
+	}
+
+
+	/**
+	 * Get the latest cached files for current options
+	 *
+	 * @param string $prefix
+	 * @param string $extension
+	 *
+	 * @return array
+	 */
+	public function getCachedFiles($prefix = '', $extension = '') {
+		$cached = array();
+
+		$regexp = $prefix;
+		$regexp .= '_(\d{10})';
+		$regexp .= str_replace('.', '\.', $extension);
+
+		$files = scandir($this->config['cacheFolder']);
+		foreach ($files as $file) {
+			if ($file == '.' || $file == '..') {
+				continue;
+			}
+			elseif (preg_match("/^$regexp$/iu", $file, $matches)) {
+				$cached[] = $matches[0];
+			}
+		}
+
+		return $cached;
+	}
+
+
+	/**
+	 * Recursive create of directories by specified path
+	 *
+	 * @param $path
+	 *
+	 * @return bool
+	 */
+	public function makeDir($path = '') {
+		if (empty($path)) {return false;}
+		elseif (file_exists($path)) {return true;}
+
+		$tmp = explode('/', str_replace(MODX_BASE_PATH, '', $path));
+		$path = MODX_BASE_PATH;
+		foreach ($tmp as $v) {
+			if (!empty($v)) {
+				$path .= $v . '/';
+				if (!file_exists($path)) {
+					mkdir($path);
+				}
+			}
+		}
+		return file_exists($path);
+	}
+
+
+	/**
+	 * Recursive remove of a directory
+	 *
+	 * @param $dir
+	 *
+	 * @return bool
+	 */
+	public function removeDir($dir) {
+		if (is_dir($dir)) {
+			$list = scandir($dir);
+
+			foreach ($list as $file) {
+				if ($file != '.' && $file != '..') {
+					if (filetype($dir . '/' . $file) == 'dir') {
+						$this->removeDir($dir . '/' . $file);
+					}
+					else {
+						unlink($dir . '/' . $file);
 					}
 				}
 			}
 		}
-
-		if (substr($full_path, -1) !== '/') {
-			$full_path .= '/';
-		}
-
-		// Could not create cache directory
-		if (!file_exists(MODX_BASE_PATH . $full_path)) {
-			return false;
-		}
-
-		// Get the latest cache files
-		$this->config['cacheFolder'] = $cacheFolder = MODX_BASE_PATH . $full_path;
-		$regexp = '('.$this->config['jsFilename'].'|'.$this->config['cssFilename'].')';
-		$regexp .= '_(\d{10})';
-		$regexp .= '('.$this->config['jsExt'].'|'.$this->config['cssExt'].')';
-
-		$files = scandir($cacheFolder);
-		foreach ($files as $file) {
-			if ($file == '.' || $file == '..') {continue;}
-
-			if (preg_match("/^$regexp$/iu", $file, $matches)) {
-				if ($matches[3] == $this->config['jsExt']) {
-					$this->current['js'][] = array(
-						'file' => $matches[0],
-						'time' => filemtime($cacheFolder . $file),
-					);
-				}
-				else {
-					$this->current['css'][] = array(
-						'file' => $matches[0],
-						'time' => filemtime($cacheFolder . $file),
-					);
-				}
-			}
-		}
-
-		return true;
+		rmdir($dir);
+		return !file_exists($dir);
 	}
 
+
+	/**
+	 * Prepares and returns path to temporary directory for storing Munee cache
+	 *
+	 * @return bool
+	 */
+	public function getTmpDir() {
+		$dir = str_replace('//', '/', '/' . $this->config['munee_cache'] . '/');
+
+		if ($this->makeDir($dir)) {
+			return $dir;
+		}
+		else {
+			return false;
+		}
+	}
+
+
+	/**
+	 * Removes temporary directory with Munee cache
+	 *
+	 * @return bool
+	 */
+	public function clearCache() {
+		if ($dir = $this->getTmpDir()) {
+			return $this->removeDir($dir);
+		}
+
+		return false;
+	}
 }

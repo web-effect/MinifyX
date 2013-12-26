@@ -1,5 +1,9 @@
 Changelog for MinifyX
 
+1.3.0-beta (26.12.2013)
+==============
+- Refactored main class.
+
 1.2.2-pl3 (16.12.2013)
 ==============
 - Removed phar file.
