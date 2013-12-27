@@ -4,6 +4,9 @@ Changelog for MinifyX
 ==============
 - Refactored main class.
 - Rewrited snippet MinifyX.
+- Added plugin MinifyX that can process scripts, styles and images of web page.
+- Improved connector in assets for image processing.
+- Changed cached files format.
 
 1.2.2-pl3 (16.12.2013)
 ==============

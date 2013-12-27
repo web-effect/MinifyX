@@ -7,8 +7,6 @@ if (!$MinifyX->prepareCacheFolder()) {
 	$modx->log(modX::LOG_LEVEL_ERROR, '[MinifyX] Could not create cache dir "'.$MinifyX->config['cacheFolder'].'"');
 	return;
 }
-
-$time = time();
 $cacheFolderUrl = MODX_BASE_URL . str_replace(MODX_BASE_PATH, '', $MinifyX->config['cacheFolder']);
 
 $array = array(
@@ -18,7 +16,7 @@ $array = array(
 
 foreach ($array as $type => $value) {
 	if (empty($value)) {continue;}
-	$filename = $MinifyX->config[$type.'Filename'];
+	$filename = $MinifyX->config[$type.'Filename'] . '_';
 	$extension = $MinifyX->config[$type.'Ext'];
 	$register = $MinifyX->config['register'.ucfirst($type)];
 	$placeholder = !empty($MinifyX->config[$type.'Placeholder'])
@@ -31,22 +29,9 @@ foreach ($array as $type => $value) {
 				? 'true'
 				: 'false',
 	);
-	$cached = $MinifyX->getCachedFiles($filename, $extension);
 
-	$result = $MinifyX->Munee($files, $properties, $cached);
-	// Create new cache file
-	if (!empty($result)) {
-		$file = $filename . '_' . $time . $extension;
-		file_put_contents($MinifyX->config['cacheFolder'] . $file, $result);
-	}
-	// File already in cache
-	elseif (!empty($cached)) {
-		$file = array_pop($cached);
-	}
-	// Empty source files or some error
-	else {
-		$file = '';
-	}
+	$result = $MinifyX->Munee($files, $properties);
+	$file = $MinifyX->saveFile($result, $filename, $extension);
 
 	// Register file on frontend
 	if (!empty($file) && file_exists($MinifyX->config['cacheFolder'] . $file)) {
@@ -69,10 +54,5 @@ foreach ($array as $type => $value) {
 				}
 			}
 		}
-	}
-
-	// Remove old cache files
-	foreach ($cached as $old) {
-		unlink($MinifyX->config['cacheFolder'] . $old);
 	}
 }

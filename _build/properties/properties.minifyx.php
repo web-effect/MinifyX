@@ -30,15 +30,6 @@ $tmp = array(
 		'value' => 'styles',
 	),
 
-	'cacheFolder' => array(
-		'xtype' => 'textfield',
-		'value' => '/assets/components/minifyx/cache/',
-	),
-	'forceUpdate' => array(
-		'xtype' => 'combo-boolean',
-		'value' => false,
-	),
-
 	'registerJs' => array(
 		'xtype' => 'list',
 		'value' => 'placeholder',

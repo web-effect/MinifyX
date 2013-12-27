@@ -15,7 +15,7 @@ class MinifyX {
 			'modelPath' => $corePath.'model/',
 			'basePath' => MODX_BASE_PATH,
 
-			'cacheFolder' => $assetsPath,
+			'cacheFolder' => $this->modx->getOption('minifyx_cacheFolder', null, $assetsPath . 'cache/', true),
 
 			'jsSources' => '',
 			'cssSource' => '',
@@ -31,6 +31,7 @@ class MinifyX {
 
 			'forceUpdate' => false,
 			'munee_cache' => MODX_CORE_PATH . 'cache/default/munee/',
+			'hash_length' => 10,
 		),$config);
 
 		$this->config['jsExt'] = $this->config['minifyJs'] ? '.min.js' : '.js';
@@ -55,13 +56,15 @@ class MinifyX {
 		}
 
 		if (!is_array($files)) {return '';}
+		$site_url = $this->modx->getOption('site_url');
 
 		$output = array();
 		foreach ($files as $file) {
 			if (!empty($file) && $file[0] !== '-') {
 				$file = str_replace(MODX_BASE_PATH, '', $file);
+				$file = str_replace($site_url, '', $file);
 
-				if ($file[0] != '/') {
+				if (!preg_match('#(http|https)://#', $file) && $file[0] != '/') {
 					$file = '/' . $file;
 				}
 
@@ -92,11 +95,10 @@ class MinifyX {
 	 *
 	 * @param string $files
 	 * @param array $options Array with options for Munee class
-	 * @param array $cached Array with cached files for matching against last modified time
 	 *
 	 * @return string
 	 */
-	public function Munee($files, $options = array(), $cached = array()) {
+	public function Munee($files, $options = array()) {
 		if (!defined('WEBROOT')) {
 			define('WEBROOT', MODX_BASE_PATH);
 		}
@@ -118,19 +120,19 @@ class MinifyX {
 			$AssetType = \Munee\Asset\Registry::getClass($Request);
 			$AssetType->init();
 
-			$modified = true;
-			if (!empty($cached)) {
-				$cache_time = $AssetType->getLastModifiedDate();
-				$tmp = end($cached);
-				if (preg_match('/_(\d{10})\./', $tmp, $matched)) {
-					if ($cache_time <= $matched[1]) {
-						$modified = false;
-					}
+			if (!empty($options['setHeaders'])) {
+				if (isset($options['headerController']) && $options['headerController'] instanceof \Munee\Asset\HeaderSetter) {
+					$headerController = $options['headerController'];
+				} else {
+					$headerController = new \Munee\Asset\HeaderSetter;
 				}
+				/** @var \Munee\Response $Response */
+				$Response = new \Munee\Response($AssetType);
+				$Response->setHeaderController($headerController);
+				$Response->setHeaders(isset($options['maxAge']) ? $options['maxAge'] : 0);
 			}
-			return $modified || $this->config['forceUpdate']
-				? $AssetType->getContent()
-				: '';
+
+			return $AssetType->getContent();
 		}
 		catch (\Munee\ErrorException $e) {
 			$error = $e->getMessage();
@@ -164,6 +166,7 @@ class MinifyX {
 	}
 
 
+
 	/**
 	 * Get the latest cached files for current options
 	 *
@@ -176,20 +179,45 @@ class MinifyX {
 		$cached = array();
 
 		$regexp = $prefix;
-		$regexp .= '_(\d{10})';
-		$regexp .= str_replace('.', '\.', $extension);
+		$regexp .= '[a-z0-9]{'.$this->config['hash_length'].'}.*';
+		if (!empty($extension)) {
+			$regexp .= '?' . str_replace('.', '\.', $extension);
+		}
 
 		$files = scandir($this->config['cacheFolder']);
 		foreach ($files as $file) {
-			if ($file == '.' || $file == '..') {
-				continue;
-			}
-			elseif (preg_match("/^$regexp$/iu", $file, $matches)) {
-				$cached[] = $matches[0];
+			if (preg_match("/$regexp/i", $file, $matches)) {
+				$cached[] = $file;
 			}
 		}
 
 		return $cached;
+	}
+
+
+	/**
+	 * Save data in cache file
+	 *
+	 * @param $data
+	 * @param string $prefix
+	 * @param string $extension
+	 *
+	 * @return bool|string
+	 */
+	public function saveFile($data, $prefix = '', $extension = '') {
+		$cached = $this->getCachedFiles($prefix, $extension);
+		$hash = substr(sha1($data), 0, $this->config['hash_length']);
+		$filename = $prefix . $hash . $extension;
+
+		$tmp = array_flip($cached);
+		if (!isset($tmp[$filename])) {
+			if (!file_put_contents($this->config['cacheFolder'] . $filename, $data)) {
+				$this->modx->log(modX::LOG_LEVEL_ERROR, '[MinifyX] Could not save cache file '. $this->config['cacheFolder'] . $filename);
+				return false;
+			}
+		}
+
+		return $filename;
 	}
 
 
@@ -263,11 +291,18 @@ class MinifyX {
 
 
 	/**
-	 * Removes temporary directory with Munee cache
+	 * Removes cache files
 	 *
 	 * @return bool
 	 */
 	public function clearCache() {
+		if ($this->prepareCacheFolder()) {
+			$cached = $this->getCachedFiles();
+			foreach ($cached as $file) {
+				unlink($this->config['cacheFolder'] . $file);
+			}
+		}
+
 		if ($dir = $this->getTmpDir()) {
 			return $this->removeDir($dir);
 		}
