@@ -232,8 +232,11 @@ class MinifyX {
 		if (empty($path)) {return false;}
 		elseif (file_exists($path)) {return true;}
 
-		$tmp = explode('/', str_replace(MODX_BASE_PATH, '', $path));
-		$path = MODX_BASE_PATH;
+		$base = strpos($path, MODX_CORE_PATH) !== false
+			? MODX_CORE_PATH
+			: MODX_BASE_PATH;
+		$tmp = explode('/', str_replace($base, '', $path));
+		$path = $base;
 		foreach ($tmp as $v) {
 			if (!empty($v)) {
 				$path .= $v . '/';
