@@ -254,21 +254,21 @@ class MinifyX {
 	 * @return bool
 	 */
 	public function removeDir($dir) {
+		$dir = rtrim($dir, '/');
 		if (is_dir($dir)) {
 			$list = scandir($dir);
-
 			foreach ($list as $file) {
-				if ($file != '.' && $file != '..') {
-					if (filetype($dir . '/' . $file) == 'dir') {
-						$this->removeDir($dir . '/' . $file);
-					}
-					else {
-						unlink($dir . '/' . $file);
-					}
+				if ($file[0] == '.') {continue;}
+				elseif (is_dir($dir . '/' . $file)) {
+					$this->removeDir($dir . '/' . $file);
+				}
+				else {
+					@unlink($dir . '/' . $file);
 				}
 			}
 		}
-		rmdir($dir);
+		@rmdir($dir);
+
 		return !file_exists($dir);
 	}
 
