@@ -50,10 +50,10 @@ switch ($modx->event->name) {
 						}
 					}
 					elseif (strpos($v, '<script') !== false) {
-						$raw[$key]['js'][] = trim($v);
+						$raw[$key]['js'][] = trim(preg_replace('#<!--.*?-->(\n|)#s', '', $v));
 					}
 					elseif (strpos($v, '<style') !== false) {
-						$raw[$key]['css'][] = trim($v);
+						$raw[$key]['css'][] = trim(preg_replace('#/\*.*?\*/(\n|)#s', '', $v));
 					}
 				}
 			}
