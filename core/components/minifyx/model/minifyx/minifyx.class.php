@@ -282,7 +282,7 @@ class MinifyX {
 	 * @return bool
 	 */
 	public function getTmpDir() {
-		$dir = str_replace('//', '/', '/' . $this->config['munee_cache'] . '/');
+		$dir = str_replace('//', '/', $this->config['munee_cache']); //works both on win and linux
 
 		if ($this->makeDir($dir)) {
 			return $dir;
