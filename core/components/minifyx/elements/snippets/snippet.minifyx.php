@@ -56,3 +56,4 @@ foreach ($array as $type => $value) {
 		}
 	}
 }
+return;
