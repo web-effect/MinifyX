@@ -3,6 +3,7 @@ Changelog for MinifyX
 1.4.0-pl (30.05.2015)
 ==============
 - Updated Munee with all subpackages.
+- [#18] Improved work of plugin.
 
 1.3.1-pl (21.07.2014)
 ==============

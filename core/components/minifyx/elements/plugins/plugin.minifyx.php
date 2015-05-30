@@ -23,8 +23,8 @@ switch ($modx->event->name) {
 				'body' => $modx->jscripts,
 			);
 			$included = $excluded = $prepared = $raw = array(
-				'head' => array('css' => array(), 'js' => array()),
-				'body' => array('css' => array(), 'js' => array()),
+				'head' => array('css' => array(), 'js' => array(), 'html' => array()),
+				'body' => array('css' => array(), 'js' => array(), 'html' => array()),
 			);
 			$exclude = $modx->getOption('minifyx_exclude_registered');
 
@@ -55,6 +55,9 @@ switch ($modx->event->name) {
 					elseif (strpos($v, '<style') !== false) {
 						$raw[$key]['css'][] = trim(preg_replace('#/\*.*?\*/(\n|)#s', '', $v));
 					}
+					else {
+						$excluded[$key]['html'][] = $v;
+					}
 				}
 			}
 
@@ -78,7 +81,6 @@ switch ($modx->event->name) {
 
 			// Process raw scripts and styles
 			$tmp_dir = $MinifyX->getTmpDir() . 'resources/' . $modx->resource->id . '/';
-			$MinifyX->makeDir($tmp_dir);
 			foreach ($raw as $key => $value) {
 				foreach ($value as $type => $rows) {
 					$tmp = '';
@@ -95,6 +97,9 @@ switch ($modx->event->name) {
 						if (!empty($tmp)) {
 							$file = sha1($tmp) . '.' . $type;
 							if (!file_exists($tmp_dir . $file)) {
+								if (!file_exists($tmp_dir)) {
+									$MinifyX->makeDir($tmp_dir);
+								}
 								file_put_contents($tmp_dir . $file, $tmp);
 							}
 							$included[$key][$type][] = $tmp_dir . $file;
@@ -140,15 +145,19 @@ switch ($modx->event->name) {
 			);
 
 			// Push files to tags
-			foreach ($final as &$value) {
+			foreach ($final as $type => &$value) {
 				foreach ($value as &$file) {
 					if (strpos($file, '<script') === false && strpos($file, '<style') === false) {
 						$file = preg_match('/\.css$/iu', $file)
 							? '<link rel="stylesheet" href="' . $file . '" type="text/css" />'
 							: '<script type="text/javascript" src="' . $file . '"></script>';
+					}
 				}
+				if (!empty($excluded[$type]['html'])) {
+					$value[] = implode("\n", $excluded[$type]['html']);
 				}
 			}
+			unset($value);
 
 			// Replace tags in web page
 			$modx->resource->_output = str_replace(
