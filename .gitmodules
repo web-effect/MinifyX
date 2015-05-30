@@ -1,0 +1,3 @@
+[submodule "core/components/minifyx/munee"]
+	path = core/components/minifyx/munee
+	url = https://github.com/meenie/munee.git

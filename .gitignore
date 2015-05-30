@@ -1,4 +1,3 @@
 .idea
 .gitignore
-/src/
-/core/components/minifyx/munee/
+core/components/minifyx/munee/*

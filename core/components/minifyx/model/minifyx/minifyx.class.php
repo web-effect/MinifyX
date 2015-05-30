@@ -106,7 +106,7 @@ class MinifyX {
 			define('MUNEE_CACHE', $this->getTmpDir());
 		}
 
-		require_once $this->config['corePath'] . 'munee/autoload.php';
+		require_once $this->config['corePath'] . 'munee/vendor/autoload.php';
 
 		try {
 			$Request = new \Munee\Request($options);
