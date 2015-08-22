@@ -1,5 +1,10 @@
 Changelog for MinifyX
 
+1.4.2-pl (22.08.2015)
+==============
+- Updated Munee with all subpackages.
+- Fixed fatal error on PHP 5.3.3.
+
 1.4.1-pl (01.06.2015)
 ==============
 - Updated Munee with all subpackages.
