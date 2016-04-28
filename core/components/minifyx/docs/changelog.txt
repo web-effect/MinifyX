@@ -1,5 +1,9 @@
 Changelog for MinifyX
 
+1.4.3-pl (28.04.2016)
+==============
+- [#21] Updated sabberworm/php-css-parser.
+
 1.4.2-pl (22.08.2015)
 ==============
 - Updated Munee with all subpackages.
@@ -72,7 +76,7 @@ Changelog for MinifyX
 1.1.0 (09.09.2012)
 ==============
 - Changed css minifier to Minify_CSS_Compressor from https://code.google.com/p/minify/
-- Added Douglas Crockford's JSMin https://github.com/rgrove/jsmin-php/ 
+- Added Douglas Crockford's JSMin https://github.com/rgrove/jsmin-php/
 - Serious refactor of code
 - Added properties to snippet
 - Removed plugin
