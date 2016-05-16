@@ -1,8 +1,12 @@
 Changelog for MinifyX
 
+1.4.4-pl (16.05.2016)
+==============
+- [#22] Updated sabberworm/php-css-parser to version 7.0.3.
+
 1.4.3-pl (28.04.2016)
 ==============
-- [#21] Updated sabberworm/php-css-parser.
+- [#21] Updated sabberworm/php-css-parser to version 7.0.2.
 
 1.4.2-pl (22.08.2015)
 ==============
