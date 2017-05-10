@@ -13,6 +13,30 @@ $array = array(
 	'js' => trim($modx->getOption('jsSources', $scriptProperties, '', true)),
 	'css' => trim($modx->getOption('cssSources', $scriptProperties, '', true)),
 );
+$registered_scripts=['jscripts','sjscripts'];
+$inline_scripts=['js'=>[],'css'=>[]];
+foreach($registered_scripts as $skey)
+{
+	foreach($modx->$skey as $i=>$jsscript)
+	{
+		if(preg_match('/<(?:link|script).*?(?:href|src)=[\'|"](.*?)[\'|"]/', $jsscript, $tmp)){
+			if (strpos($tmp[1], '.css') !== false){$array['css'].=','.$tmp[1];unset($modx->$skey[$i]);}
+			if (strpos($tmp[1], '.js') !== false){$array['js'].=','.$tmp[1];unset($modx->$skey[$i]);}
+		}
+		else
+		{
+			$type = false;
+			if(strpos($jsscript, '<style') !== false)$type='css';
+			if(strpos($jsscript, '<script') !== false)$type='js';
+			if($type)
+			{
+				$inline_scripts[$skey][]=$jsscript;
+				unset($modx->$skey[$i]);
+			}
+		}
+	}
+}
+
 
 foreach ($array as $type => $value) {
 	if (empty($value)) {continue;}
@@ -54,6 +78,15 @@ foreach ($array as $type => $value) {
 				}
 			}
 		}
+	}
+}
+
+
+foreach($inline_scripts as $skey=>$scripts)
+{
+	foreach($scripts as $script)
+	{
+		$modx->$skey[]=$script;
 	}
 }
 return;
